@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#000000"/>
+  <text x="600" y="330" text-anchor="middle" font-family="Bitstream Charter" font-weight="bold" font-style="italic"
+        font-size="176" fill="#F4F2EC">Reflow</text>
+  <path d="M470 392h260" stroke="#2E2C26" stroke-width="2"/>
+  <text x="600" y="446" text-anchor="middle" font-family="Carlito" font-size="30" fill="#8A8A8A">
+    PDF to EPUB, in your browser
+  </text>
+</svg>
