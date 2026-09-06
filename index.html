@@ -24,6 +24,12 @@
 <meta name="twitter:image" content="YOUR-SITE-URL/og-drawing.png">
 <script src="vendor/pdf.min.js"></script>
 <script src="vendor/jszip.min.js"></script>
+<script src="vendor/pdf.min.js"></script>
+<script src="vendor/jszip.min.js"></script>
+<script src="vendor/pdf.min.js"></script>
+<script src="vendor/jszip.min.js"></script>
+<script src="vendor/pdf.min.js"></script>
+<script src="vendor/jszip.min.js"></script>
 <style>
   :root{
     --void:#000;
@@ -38,8 +44,34 @@
     --paper:#F4F2EC;
     --paper-edge:#DBD7CB;
     --amber:#C9A227;
+    --art:#E9E3D4;
+    --art-quiet:#7E7A70;
+    --btn-bg:#F4F2EC;
+    --btn-fg:#111;
+    --dropbg:radial-gradient(115% 130% at 50% 0%, #16150F 0%, #0C0C0C 62%);
+    --stage:#F4F2EC;
+    --stage-text:#1C1813;
+    --stage-dim:#8A8375;
+    --stage-rule:#DBD7CB;
     --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  }
+  body.light{
+    --void:#FFFFFF;
+    --panel:#F5F3EE;
+    --panel-2:#EDEAE2;
+    --raise:#E4E0D6;
+    --line:#DFDBD1;
+    --line-2:#C6C1B4;
+    --text:#1C1813;
+    --dim:#6B665C;
+    --dimmer:#928C80;
+    --art:#2A2620;
+    --art-quiet:#8A8478;
+    --btn-bg:#1C1813;
+    --btn-fg:#F4F2EC;
+    --dropbg:radial-gradient(115% 130% at 50% 0%, #FFFFFF 0%, #F1EEE7 62%);
+    --stage:#FFFFFF;
   }
   *{box-sizing:border-box}
   html,body{height:100%}
@@ -50,22 +82,25 @@
   [hidden]{display:none !important}
 
   /* ============ landing ============ */
-  .landing{min-height:100%; display:flex; flex-direction:column; align-items:center;
-           padding:34px 22px 0}
+  .landing{position:relative; min-height:100%; display:flex; flex-direction:column;
+           align-items:center; padding:clamp(28px,5vh,52px) 22px 0}
+  .landing .theme{position:absolute; top:clamp(22px,4vh,44px); right:clamp(16px,3vw,34px)}
   .landing .inner{width:100%; max-width:620px}
-  .mark{display:flex; align-items:baseline; gap:10px; margin-bottom:74px}
+  .mark{display:flex; align-items:baseline; justify-content:center; gap:10px;
+        margin-bottom:clamp(64px,13vh,124px)}
   .mark b{font-family:var(--serif); font-style:italic; font-size:26px; font-weight:600;
           letter-spacing:-.005em}
   .mark span{color:var(--dimmer); font-size:12.5px}
 
+  .hero{text-align:center}
   .hero h1{font-family:var(--serif); font-size:clamp(32px,7vw,52px); font-weight:600;
-           line-height:1.08; letter-spacing:-.02em; margin:0 0 18px; max-width:16ch}
-  .hero p{color:var(--dim); font-size:16px; margin:0 0 34px; max-width:46ch}
-  .heroart{display:block; width:100%; max-width:360px; margin:0 0 40px; color:#E9E3D4}
+           line-height:1.08; letter-spacing:-.02em; margin:0 auto 18px; max-width:16ch}
+  .hero p{color:var(--dim); font-size:16px; margin:0 auto 34px; max-width:46ch}
+  .heroart{display:block; width:100%; max-width:360px; margin:0 auto 40px; color:var(--art)}
   .heroart .spill{color:#8A8A8A}
 
   /* hand-drawn illustrations */
-  .ink{color:#E9E3D4}
+  .ink{color:var(--art)}
   .ink [stroke]{stroke-linecap:round; stroke-linejoin:round; vector-effect:non-scaling-stroke}
   .ink .accent{color:var(--amber)}
   @media (prefers-reduced-motion:no-preference){
@@ -76,19 +111,19 @@
     .draw .nd{stroke-dasharray:6 7 !important; stroke-dashoffset:0 !important; animation:none !important}
   }
 
-  .drop{position:relative; display:block; width:100%; border:1.5px solid #2A2A2A;
-        background:radial-gradient(115% 130% at 50% 0%, #16150F 0%, #0C0C0C 62%);
+  .drop{position:relative; display:block; width:100%; border:1.5px solid var(--line-2);
+        background:var(--dropbg);
         border-radius:18px; padding:46px 24px; text-align:center; cursor:pointer;
         transition:border-color .18s, background .18s, transform .18s}
   .drop:hover,.drop.over{border-color:#6F6A5E; transform:translateY(-1px)}
   .drop.bad{border-color:var(--amber)}
-  .dropart{display:block; width:62px; height:48px; margin:0 auto 16px; color:#7E7A70;
+  .dropart{display:block; width:62px; height:48px; margin:0 auto 16px; color:var(--art-quiet);
            transition:color .15s, transform .2s}
-  .drop:hover .dropart,.drop.over .dropart{color:#E9E3D4; transform:translateY(-2px) rotate(-2deg)}
+  .drop:hover .dropart,.drop.over .dropart{color:var(--art); transform:translateY(-2px) rotate(-2deg)}
   .drop strong{display:block; font-size:17px; font-weight:600}
   .drop em{display:block; font-style:normal; color:var(--dim); font-size:13px; margin-top:7px}
   .drop.bad{border-color:var(--amber)}
-  .droperr{color:var(--amber); font-size:13px; margin:12px 0 0; min-height:18px}
+  .droperr{color:var(--amber); font-size:13px; margin:12px 0 0; min-height:18px; text-align:center}
 
   .steps{margin:90px 0 0; border-top:1px solid var(--line); padding-top:34px}
   .steps h2{font-family:var(--serif); font-size:21px; font-weight:600; margin:0 0 30px}
@@ -109,7 +144,7 @@
 
   /* ============ workspace ============ */
   .work{height:100vh; display:grid; grid-template-rows:auto 1fr}
-  .topbar{display:flex; align-items:center; gap:12px; padding:12px 18px;
+  .topbar{display:flex; align-items:center; gap:10px; padding:11px 18px; flex-wrap:wrap;
           border-bottom:1px solid var(--line); background:var(--panel); min-height:60px}
   .topbar .back{background:transparent; border:1px solid var(--line-2); color:var(--text);
                 border-radius:3px; padding:8px 11px; cursor:pointer; line-height:1}
@@ -118,8 +153,17 @@
                  overflow:hidden; text-overflow:ellipsis}
   .topbar .who span{display:block; color:var(--dim); font-size:12px; white-space:nowrap;
                     overflow:hidden; text-overflow:ellipsis}
-  .dl{background:var(--paper); color:#111; border:0; border-radius:3px; padding:11px 17px;
-      font-weight:650; cursor:pointer; white-space:nowrap}
+  .navsel{display:flex; gap:6px; align-items:center; min-width:0; flex:0 1 400px}
+  .navsel button{background:var(--panel-2); border:1px solid var(--line-2); color:var(--text);
+    font-size:16px; line-height:1; padding:10px 13px; border-radius:3px; cursor:pointer}
+  .navsel button:disabled{opacity:.35; cursor:not-allowed}
+  .navsel select{flex:1; min-width:0; background:var(--panel-2); color:var(--text);
+    border:1px solid var(--line-2); border-radius:3px; padding:9px 9px; font-size:13.5px}
+  .theme{background:var(--panel-2); border:1px solid var(--line-2); color:var(--text);
+    border-radius:3px; padding:8px 11px; cursor:pointer; line-height:0; flex:none}
+  .theme svg{width:18px; height:18px; display:block}
+  .dl{background:var(--btn-bg); color:var(--btn-fg); border:0; border-radius:3px;
+      padding:11px 17px; font-weight:650; cursor:pointer; white-space:nowrap}
   .dl:disabled{background:var(--raise); color:var(--dimmer); cursor:not-allowed}
   .toc-toggle{display:none}
   .prog{height:2px; background:var(--raise)}
@@ -172,19 +216,11 @@
   .stats .note{margin-top:11px; color:var(--dim); line-height:1.5}
   .stats .flag{color:var(--amber)}
 
-  .stage{background:#050505; overflow-y:auto; padding:0 30px 80px; min-height:0}
-  .swrap{max-width:640px; margin:0 auto}
-  .pager{position:sticky; top:0; z-index:3; display:flex; gap:8px; align-items:center;
-         padding:14px 0; background:#050505}
-  .pager button{background:var(--panel-2); border:1px solid var(--line-2); color:var(--text);
-    font-size:17px; line-height:1; padding:10px 15px; border-radius:3px; cursor:pointer}
-  .pager button:disabled{opacity:.3; cursor:not-allowed}
-  .pager select{flex:1; min-width:0; background:var(--panel-2); color:var(--text);
-    border:1px solid var(--line-2); border-radius:3px; padding:10px 9px; font-size:13.5px}
-
-  .sheet{background:var(--paper); color:#1C1813; padding:56px 60px; margin-bottom:22px;
-    box-shadow:0 20px 50px rgba(0,0,0,.6); font-family:var(--serif); min-height:52vh}
-  .sheet .waiting{font-family:var(--sans); color:#8A8375; font-size:14px; line-height:1.6; max-width:44ch}
+  .stage{background:var(--stage); overflow-y:auto; min-height:0}
+  .swrap{max-width:660px; margin:0 auto; padding:52px 30px 96px}
+  .sheet{color:var(--stage-text); font-family:var(--serif); min-height:52vh}
+  .sheet .waiting{font-family:var(--sans); color:var(--stage-dim); font-size:14px;
+                  line-height:1.6; max-width:44ch}
   .sheet h2{font-size:24px; font-weight:600; margin:2.2em 0 .7em; line-height:1.25}
   .sheet h3{font-size:18px; font-weight:600; margin:1.9em 0 .6em}
   .sheet h4{font-size:15.5px; font-weight:600; margin:1.6em 0 .5em}
@@ -192,28 +228,46 @@
   .sheet p{font-size:17.5px; line-height:1.62; margin:0}
   .sheet.indent p+p{text-indent:1.35em}
   .sheet.spaced p{margin-bottom:.95em}
-  .sheet .brk{border:0; height:1px; background:var(--paper-edge); margin:2em 25%}
+  .sheet .brk{border:0; height:1px; background:var(--stage-rule); margin:2em 25%}
   .sheet figure{margin:1.6em 0; text-align:center}
   .sheet figure img{max-width:100%; height:auto}
   .sheet [data-i]{cursor:pointer; border-radius:2px; transition:background .1s}
-  .sheet [data-i]:hover{background:rgba(0,0,0,.07)}
+  .sheet [data-i]:hover{background:rgba(127,127,127,.16)}
   .sheet h2[data-i],.sheet h3[data-i],.sheet h4[data-i]{box-shadow:-14px 0 0 -11px #B4AE9C}
-  .hint{font-family:var(--sans); font-size:12.5px; color:#8A8375;
-        border-left:2px solid var(--paper-edge); padding:8px 13px; margin:0 0 2.4em; line-height:1.5}
-  .tail{font-family:var(--sans); font-size:13px; color:#8A8375; margin-top:2.6em;
-        padding-top:14px; border-top:1px solid var(--paper-edge)}
+  .skel{display:block}
+  .skel .lead{font-family:var(--sans); font-size:14px; color:var(--stage-dim); margin:0 0 34px}
+  .skel i{display:block; height:12px; border-radius:2px; background:var(--stage-rule);
+          margin:0 0 18px; opacity:.62}
+  .skel i.h{height:26px; width:46%; margin-bottom:30px}
+  .skel i.fig{height:150px; margin:28px 0 30px}
+  @media (prefers-reduced-motion:no-preference){
+    .skel i{animation:pulse 1.6s ease-in-out infinite}
+    .skel i:nth-child(3){animation-delay:.08s}
+    .skel i:nth-child(4){animation-delay:.16s}
+    .skel i:nth-child(5){animation-delay:.24s}
+    .skel i:nth-child(6){animation-delay:.32s}
+    .skel i:nth-child(7){animation-delay:.40s}
+    .skel i:nth-child(8){animation-delay:.48s}
+    .skel i:nth-child(9){animation-delay:.56s}
+    .skel i:nth-child(10){animation-delay:.64s}
+    @keyframes pulse{0%,100%{opacity:.36}50%{opacity:.86}}
+  }
+  .hint{font-family:var(--sans); font-size:12.5px; color:var(--stage-dim);
+        border-left:2px solid var(--stage-rule); padding:8px 13px; margin:0 0 2.4em; line-height:1.5}
+  .tail{font-family:var(--sans); font-size:13px; color:var(--stage-dim); margin-top:2.6em;
+        padding-top:14px; border-top:1px solid var(--stage-rule)}
 
   /* ============ done modal ============ */
-  .scrim{position:fixed; inset:0; z-index:60; background:rgba(0,0,0,.72);
+  .scrim{position:fixed; inset:0; z-index:60; background:rgba(0,0,0,.6);
          display:flex; align-items:center; justify-content:center; padding:22px}
-  .modal{width:100%; max-width:380px; background:#0E0E0E; border:1px solid #2A2A2A;
+  .modal{width:100%; max-width:380px; background:var(--panel); border:1px solid var(--line-2);
          border-radius:18px; padding:30px 28px 24px; text-align:center}
-  .modal svg{display:block; width:96px; height:78px; margin:0 auto 20px; color:#E9E3D4}
+  .modal svg{display:block; width:96px; height:78px; margin:0 auto 20px; color:var(--art)}
   .modal h3{font-family:var(--serif); font-size:24px; font-weight:600; margin:0 0 10px}
   .modal p{color:var(--dim); font-size:14px; margin:0 0 24px; line-height:1.55}
   .modal .acts{display:flex; gap:10px}
   .modal .acts button{flex:1; border-radius:3px; padding:11px 12px; cursor:pointer; font-size:14px}
-  .modal .keep{background:var(--paper); color:#111; border:0; font-weight:650}
+  .modal .keep{background:var(--btn-bg); color:var(--btn-fg); border:0; font-weight:650}
   .modal .again{background:transparent; color:var(--text); border:1px solid var(--line-2)}
   .modal .again:hover{border-color:#6F6A5E}
   @media (prefers-reduced-motion:no-preference){
@@ -229,9 +283,8 @@
     .side.open{display:flex}
     .toc-toggle{display:block; background:transparent; border:1px solid var(--line-2);
       color:var(--text); border-radius:3px; padding:8px 11px; cursor:pointer}
-    .stage{padding:0 12px 60px}
-    .sheet{padding:30px 22px}
-    .mark{margin-bottom:46px}
+    .swrap{padding:26px 18px 70px}
+    .navsel{order:9; flex:1 0 100%}
     .steps{margin-top:60px}
   }
   @media (prefers-reduced-motion:reduce){*{transition:none !important}}
@@ -242,6 +295,13 @@
 <!-- ================= landing ================= -->
 <div class="landing" id="landing">
   <div class="inner">
+    <button class="theme" id="themeBtn2" aria-label="Switch between light and dark">
+      <svg viewBox="0 0 20 20" aria-hidden="true">
+        <circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.7"/>
+        <path d="M10 2a8 8 0 0 1 0 16Z" fill="currentColor"/>
+      </svg>
+    </button>
+
     <div class="mark"><b>Reflow</b><span>PDF → EPUB</span></div>
 
     <div class="hero">
@@ -375,6 +435,17 @@
       <button class="back" id="back" aria-label="Start over">‹</button>
       <button class="toc-toggle" id="tocToggle">Contents</button>
       <div class="who"><b id="wTitle">—</b><span id="wStatus">—</span></div>
+      <div class="navsel" id="navsel" hidden>
+        <button type="button" id="prevCh" aria-label="Previous chapter">‹</button>
+        <select id="chSel" aria-label="Jump to chapter"></select>
+        <button type="button" id="nextCh" aria-label="Next chapter">›</button>
+      </div>
+      <button class="theme" id="themeBtn" aria-label="Switch between light and dark">
+        <svg viewBox="0 0 20 20" aria-hidden="true">
+          <circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.7"/>
+          <path d="M10 2a8 8 0 0 1 0 16Z" fill="currentColor"/>
+        </svg>
+      </button>
       <button class="dl" id="dl" disabled>Download</button>
     </div>
     <div class="prog"><i id="bar"></i></div>
@@ -435,13 +506,8 @@
 
     <main class="stage" id="stage">
       <div class="swrap">
-        <div class="pager" id="pager" hidden>
-          <button type="button" id="prevCh" aria-label="Previous chapter">‹</button>
-          <select id="chSel" aria-label="Jump to chapter"></select>
-          <button type="button" id="nextCh" aria-label="Next chapter">›</button>
-        </div>
         <div class="sheet indent" id="sheet">
-          <p class="waiting" id="waiting">Reading the PDF…</p>
+          <p class="waiting">Drop a PDF on the previous screen to begin.</p>
         </div>
       </div>
     </main>
@@ -472,7 +538,7 @@
   "use strict";
   const $ = id => document.getElementById(id);
   const drop=$("drop"), fileInput=$("file"), sheet=$("sheet"), stage=$("stage"),
-        pager=$("pager"), chSel=$("chSel"), titleIn=$("title"), authorIn=$("author"),
+        pager=$("navsel"), chSel=$("chSel"), titleIn=$("title"), authorIn=$("author"),
         dlBtn=$("dl"), tocEl=$("toc");
 
   if(window.pdfjsLib){
@@ -971,6 +1037,15 @@
     }
   }
 
+  function skeleton(msg){
+    const a=["100%","93%","98%","82%"], b=["96%","88%","64%"];
+    return '<div class="skel"><p class="lead">'+esc(msg)+'</p><i class="h"></i>'
+      + a.map(x=>`<i style="width:${x}"></i>`).join("")
+      + '<i class="fig"></i>'
+      + b.map(x=>`<i style="width:${x}"></i>`).join("")
+      + '</div>';
+  }
+
   /* ---------- preview ---------- */
   function renderPreview(){
     sheet.className="sheet "+paraStyle;
@@ -1190,7 +1265,8 @@ ${chs.map((c,i)=>
   async function convert(){
     if(busy||!pdfBytes) return;
     busy=true; dlBtn.disabled=true;
-    $("waiting").textContent="Reading the PDF…";
+    sheet.className="sheet "+paraStyle;
+    sheet.innerHTML=skeleton("Reading the document…");
     setStatus("Reading…"); setBar(0.02);
     try{
       parsed=await parseDoc((f,p,n)=>{ setBar(f*0.78); setStatus(`Reading page ${p} of ${n}…`); },
@@ -1198,20 +1274,21 @@ ${chs.map((c,i)=>
       const chars=parsed.pages.reduce((n,p)=>n+p.lines.reduce((m,l)=>m+l.text.length,0),0);
       if(chars<40*parsed.numPages){
         setStatus("No text layer — this PDF is page images and needs OCR first.",true);
-        $("waiting").textContent="This PDF has no text in it, only pictures of pages. OCR software has to read it before any converter can rebuild it.";
+        sheet.innerHTML='<p class="waiting">This PDF has no text in it, only pictures of pages. OCR software has to read it before any converter can rebuild it.</p>';
         setBar(0); parsed=null; busy=false; return;
       }
       if(!titleIn.value && parsed.meta.Title) titleIn.value=parsed.meta.Title;
       if(!authorIn.value && parsed.meta.Author) authorIn.value=parsed.meta.Author;
       $("wTitle").textContent=titleIn.value.trim()||pdfName;
       setStatus("Rebuilding chapters…"); setBar(0.86);
+      sheet.innerHTML=skeleton("Rebuilding chapters…");
       await idle();
       await reassemble();
       setBar(1);
     }catch(err){
       console.error(err);
       setStatus("Couldn't read that file — it may be encrypted or damaged.",true);
-      $("waiting").textContent="Couldn't read that file. "+(err&&err.message||"");
+      sheet.innerHTML='<p class="waiting">Couldn\u2019t read that file. '+esc(err&&err.message||"")+'</p>';
       setBar(0);
     }finally{ busy=false; }
   }
@@ -1249,7 +1326,7 @@ ${chs.map((c,i)=>
     tocEl.innerHTML=""; pager.hidden=true; dlBtn.disabled=true;
     $("wTitle").textContent=pdfName;
     sheet.className="sheet "+paraStyle;
-    sheet.innerHTML='<p class="waiting" id="waiting">Reading the PDF…</p>';
+    sheet.innerHTML=skeleton("Reading the document…");
     $("landing").hidden=true; $("work").hidden=false;
     convert();
   }
@@ -1341,6 +1418,9 @@ ${chs.map((c,i)=>
     const inp=e.target.closest("[data-ren]");
     if(inp && renaming>=0){ renaming=-1; renderContents(); }
   }, true);
+
+  ["themeBtn","themeBtn2"].forEach(id=>
+    $(id).addEventListener("click",()=>document.body.classList.toggle("light")));
 
   $("prevCh").addEventListener("click",()=>goChapter(chIdx-1));
   $("nextCh").addEventListener("click",()=>goChapter(chIdx+1));
