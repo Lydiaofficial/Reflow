@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy — Reflow</title>
+<meta name="description" content="Reflow has no server. Your PDF is read by your own browser and never uploaded. No accounts, no cookies, no tracking of your documents.">
+<link rel="canonical" href="https://reflow-7gz.pages.dev/privacy.html">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+  :root{--void:#000;--line:#242424;--line-2:#383838;--text:#EDEDED;--dim:#8A8A8A;--dimmer:#5E5E5E;
+        --art:#E9E3D4;
+        --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+        --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--void);color:var(--text);font-family:var(--sans);
+       font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:620px;margin:0 auto;padding:clamp(28px,5vh,52px) 22px 80px}
+  .mark{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text);
+        margin-bottom:clamp(48px,9vh,88px)}
+  .mark svg{width:30px;height:30px;color:var(--art);flex:none}
+  .mark b{font-family:var(--serif);font-style:italic;font-size:27px;font-weight:600}
+  h1{font-family:var(--serif);font-size:clamp(30px,6vw,42px);font-weight:600;
+     line-height:1.12;letter-spacing:-.02em;margin:0 0 10px}
+  .lede{color:var(--dim);font-size:16px;margin:0 0 42px}
+  h2{font-family:var(--serif);font-size:20px;font-weight:600;margin:38px 0 12px}
+  p{color:var(--dim);margin:0 0 16px;max-width:62ch}
+  strong{color:var(--text);font-weight:600}
+  .foot{border-top:1px solid var(--line);margin-top:52px;padding-top:22px;
+        color:var(--dimmer);font-size:12.5px}
+  .foot a{color:var(--dim);text-decoration:none;border-bottom:1px solid var(--line-2)}
+  .foot a:hover{color:var(--text)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="mark" href="./">
+    <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-linecap="round"
+         stroke-linejoin="round" stroke-width="3.4" aria-hidden="true">
+      <path d="M27 12c-1.4-.6-3 .2-3.2 1.8l-4.4 33c-.2 1.6.8 3 2.4 3.2l31 4.2c1.6.2 3-.8 3.2-2.4l3.6-27c.2-1.6-.8-3-2.4-3.2Z"/>
+      <path d="M57.2 21.6 45.6 14l7.4 15.2Z" stroke-width="3"/>
+      <g stroke-width="2.6"><path d="M28 24.5 46 27"/><path d="M26.6 33.5 44.6 36"/><path d="M25.4 42.5 37 44"/></g>
+      <g stroke-width="3"><path d="M13.5 20.5 7 14"/><path d="M11.5 33 4 31"/><path d="M17.5 11 15.5 3.5"/></g>
+    </svg>
+    <b>Reflow</b>
+  </a>
+
+  <h1>Privacy</h1>
+  <p class="lede">The short version: your documents never leave your device, because there is nowhere for them to go.</p>
+
+  <h2>Your files</h2>
+  <p>Reflow has <strong>no server and no backend</strong>. When you choose a PDF, your browser reads it from your own disk using the standard file API, does the conversion in the page, and hands the finished EPUB back to your downloads folder. Nothing is transmitted at any point.</p>
+  <p>You can test this yourself: load the page, disconnect from the internet, and convert a file. It still works. The whole tool is one HTML file and two open-source libraries, all served from this site.</p>
+
+  <h2>What is stored</h2>
+  <p>Nothing. There are no accounts, no cookies, and no browser storage. Your document exists in the tab's memory while you're working, and is gone the moment you close or reload it. That includes any chapter names you edit or notes you make — none of it persists, by design.</p>
+
+  <h2>Analytics</h2>
+  <p>This site may count page visits so I know whether anyone is using it. Any such counting is limited to the page itself, uses no cookies, does not follow you across sites, and can see nothing whatsoever about the documents you convert — those never reach the network.</p>
+
+  <h2>Hosting</h2>
+  <p>The site is hosted on Cloudflare Pages. Like any web host, Cloudflare processes the ordinary request data needed to deliver a page, such as your IP address, and it does so under its own terms. This applies to fetching the page, not to your files.</p>
+
+  <h2>Third-party code</h2>
+  <p>Reflow uses two open-source libraries: <strong>pdf.js</strong> from Mozilla, which reads the PDF, and <strong>JSZip</strong>, which assembles the EPUB. Both are served from this domain rather than from a content delivery network, so loading the page contacts no third party at all.</p>
+
+  <h2>Children</h2>
+  <p>Reflow collects no personal information from anyone, of any age.</p>
+
+  <h2>Changes</h2>
+  <p>If this ever changes — if a feature one day needs a server — it will be said plainly here and on the homepage before it ships, not buried in an update.</p>
+
+  <div class="foot">
+    <a href="./">Back to Reflow</a> &nbsp;·&nbsp; <a href="https://github.com/Lydiaofficial/Reflow" rel="noopener">Source on GitHub</a>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://reflow-7gz.pages.dev/sitemap.xml

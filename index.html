@@ -3,25 +3,54 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Reflow — PDF to EPUB</title>
+<title>Reflow — free PDF to EPUB converter that actually reflows</title>
 <meta name="description" content="Convert a PDF into an EPUB that actually reflows. Rebuilds the paragraphs, chapters and figures instead of freezing the page layout. Nothing is uploaded.">
 <meta name="theme-color" content="#000000">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="canonical" href="YOUR-SITE-URL/">
+<link rel="canonical" href="https://reflow-7gz.pages.dev/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Reflow">
 <meta property="og:title" content="Reflow — PDF to EPUB">
 <meta property="og:description" content="Other converters keep the page layout, so the text lands on top of itself. Reflow rebuilds the paragraphs, chapters and figures instead. Nothing is uploaded.">
-<meta property="og:url" content="YOUR-SITE-URL/">
-<meta property="og:image" content="YOUR-SITE-URL/og-drawing.png">
+<meta property="og:url" content="https://reflow-7gz.pages.dev/">
+<meta property="og:image" content="https://reflow-7gz.pages.dev/og-drawing.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="A page of tangled overlapping text becoming a page of clean lines, above the word Reflow">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Reflow — PDF to EPUB">
 <meta name="twitter:description" content="Other converters keep the page layout, so the text lands on top of itself. Reflow rebuilds the paragraphs, chapters and figures instead.">
-<meta name="twitter:image" content="YOUR-SITE-URL/og-drawing.png">
+<meta name="twitter:image" content="https://reflow-7gz.pages.dev/og-drawing.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Reflow",
+  "url": "https://reflow-7gz.pages.dev/",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any web browser",
+  "browserRequirements": "Requires JavaScript",
+  "description": "Convert a PDF into an EPUB that actually reflows. Rebuilds the paragraphs, chapters and figures instead of freezing the page layout. Runs entirely in the browser; nothing is uploaded.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Rebuilds paragraphs so text reflows on any screen",
+    "Finds chapters from bookmarks or the book's contents page",
+    "Keeps images in place in the text",
+    "Detects a cover",
+    "Edit the table of contents before exporting",
+    "Runs offline in the browser with no upload"
+  ]
+}
+</script>
+<script src="vendor/pdf.min.js"></script>
+<script src="vendor/jszip.min.js"></script>
+<script src="vendor/pdf.min.js"></script>
+<script src="vendor/jszip.min.js"></script>
+<script src="vendor/pdf.min.js"></script>
+<script src="vendor/jszip.min.js"></script>
+<script src="vendor/pdf.min.js"></script>
+<script src="vendor/jszip.min.js"></script>
 <script src="vendor/pdf.min.js"></script>
 <script src="vendor/jszip.min.js"></script>
 <script src="vendor/pdf.min.js"></script>
@@ -84,13 +113,12 @@
   /* ============ landing ============ */
   .landing{position:relative; min-height:100%; display:flex; flex-direction:column;
            align-items:center; padding:clamp(28px,5vh,52px) 22px 0}
-  .landing .theme{position:absolute; top:clamp(22px,4vh,44px); right:clamp(16px,3vw,34px)}
   .landing .inner{width:100%; max-width:620px}
-  .mark{display:flex; align-items:baseline; justify-content:center; gap:10px;
+  .mark{display:flex; align-items:center; gap:12px;
         margin-bottom:clamp(64px,13vh,124px)}
-  .mark b{font-family:var(--serif); font-style:italic; font-size:26px; font-weight:600;
+  .mark .glyph{width:30px; height:30px; color:var(--art); flex:none}
+  .mark b{font-family:var(--serif); font-style:italic; font-size:27px; font-weight:600;
           letter-spacing:-.005em}
-  .mark span{color:var(--dimmer); font-size:12.5px}
 
   .hero{text-align:center}
   .hero h1{font-family:var(--serif); font-size:clamp(32px,7vw,52px); font-weight:600;
@@ -139,15 +167,35 @@
   .steps span{color:var(--dim); font-size:14px}
   .steps li:hover svg{transform:rotate(-.7deg) scale(1.02); transition:transform .2s}
   @media (max-width:640px){ .steps ol{grid-template-columns:1fr; gap:34px} }
-  .lfoot{border-top:1px solid var(--line); margin-top:10px; padding:24px 0 44px;
+  .faq{margin:70px 0 0; border-top:1px solid var(--line); padding-top:34px}
+  .faq h2{font-family:var(--serif); font-size:21px; font-weight:600; margin:0 0 22px}
+  .faq details{border-bottom:1px solid var(--line)}
+  .faq summary{list-style:none; cursor:pointer; padding:16px 26px 16px 0; position:relative;
+               font-size:15px; font-weight:600}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary:after{content:"+"; position:absolute; right:2px; top:14px; font-size:19px;
+                     color:var(--dimmer); font-weight:400}
+  .faq details[open] summary:after{content:"\2212"}
+  .faq p{color:var(--dim); font-size:14.5px; margin:0 0 18px; max-width:62ch; line-height:1.62}
+  .lfoot{border-top:1px solid var(--line); margin-top:44px; padding:24px 0 44px;
          color:var(--dimmer); font-size:12.5px; line-height:1.6}
+  .lfoot nav{margin-top:14px; display:flex; gap:18px; flex-wrap:wrap}
+  .lfoot a{color:var(--dim); text-decoration:none; border-bottom:1px solid var(--line-2)}
+  .lfoot a:hover{color:var(--text)}
 
   /* ============ workspace ============ */
   .work{height:100vh; display:grid; grid-template-rows:auto 1fr}
-  .topbar{display:flex; align-items:center; gap:10px; padding:11px 18px; flex-wrap:wrap;
-          border-bottom:1px solid var(--line); background:var(--panel); min-height:60px}
-  .topbar .back{background:transparent; border:1px solid var(--line-2); color:var(--text);
-                border-radius:3px; padding:8px 11px; cursor:pointer; line-height:1}
+  .topbar{display:flex; align-items:stretch; padding:0;
+          border-bottom:1px solid var(--line); background:var(--panel); min-height:62px}
+  .brand{width:349px; flex:none; display:flex; align-items:center; gap:11px; padding:0 20px;
+         background:transparent; border:0; border-right:1px solid var(--line);
+         color:var(--text); cursor:pointer; transition:background .15s}
+  .brand:hover{background:var(--panel-2)}
+  .brand .glyph{width:23px; height:23px; color:var(--art); flex:none}
+  .brand b{font-family:var(--serif); font-style:italic; font-size:22px; font-weight:600;
+           letter-spacing:-.005em}
+  .bar-right{flex:1; min-width:0; display:flex; align-items:center; gap:10px;
+             flex-wrap:wrap; padding:11px 18px}
   .topbar .who{flex:1; min-width:0}
   .topbar .who b{display:block; font-size:14px; font-weight:600; white-space:nowrap;
                  overflow:hidden; text-overflow:ellipsis}
@@ -166,8 +214,10 @@
       padding:11px 17px; font-weight:650; cursor:pointer; white-space:nowrap}
   .dl:disabled{background:var(--raise); color:var(--dimmer); cursor:not-allowed}
   .toc-toggle{display:none}
-  .prog{height:2px; background:var(--raise)}
-  .prog i{display:block; height:100%; width:0; background:#fff; transition:width .2s}
+  .prog{height:2px; background:transparent}
+  .prog i{display:block; height:100%; width:0; background:var(--dimmer);
+          transition:width .25s, opacity .6s}
+  .prog i.spent{opacity:0}
 
   .cols{display:grid; grid-template-columns:minmax(300px,352px) 1fr; min-height:0}
   .side{background:var(--panel); border-right:1px solid var(--line); overflow-y:auto;
@@ -279,7 +329,10 @@
 
   @media (max-width:900px){
     .cols{grid-template-columns:1fr}
-    .side{position:fixed; inset:60px 0 0; z-index:20; border-right:0; display:none}
+    .brand{width:auto; border-right:0; padding:0 6px 0 14px}
+    .brand b{font-size:20px}
+    .bar-right{padding:11px 14px 11px 2px}
+    .side{position:fixed; inset:62px 0 0; z-index:20; border-right:0; display:none}
     .side.open{display:flex}
     .toc-toggle{display:block; background:transparent; border:1px solid var(--line-2);
       color:var(--text); border-radius:3px; padding:8px 11px; cursor:pointer}
@@ -289,20 +342,91 @@
   }
   @media (prefers-reduced-motion:reduce){*{transition:none !important}}
 </style>
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "FAQPage",
+ "mainEntity": [
+  {
+   "@type": "Question",
+   "name": "Why does my PDF look broken on an e-reader?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "A PDF fixes every word to a coordinate on a fixed-size page. An e-reader needs to reflow text to fit its screen and your chosen font size, and it can't, so you end up pinching and scrolling across a page built for A4. Converters that keep those coordinates produce EPUBs where lines sit on top of each other. Reflow uses the coordinates only to work out reading order, then discards them and rebuilds real paragraphs."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Is my file uploaded anywhere?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "No. There is no server to upload to. The PDF is read by your own browser, and the EPUB is assembled on your device. You can disconnect from the internet after the page loads and it still works."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "My PDF is a scan and nothing happens. Why?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "A scanned PDF contains photographs of pages, not text, so there is nothing to extract. Reflow tells you when it finds no text layer. You need OCR software to read the pages first; free options include running the file through OCRmyPDF, or opening it in Google Drive, which runs OCR when it converts to a Google Doc."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "The chapters came out wrong. Can I fix them?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Yes, and you don't have to re-convert. Reflow takes chapter names from the PDF's bookmarks, or from the book's own contents page if it has one. When neither exists it guesses from the typesetting, and typesetting varies enormously. In the contents panel you can rename, reorder, merge and remove entries, and clicking any line in the preview promotes it to a chapter heading."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Do images survive?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Yes. Figures are extracted and placed back at the point in the text where they appeared on the page, rather than collected at the end or dropped. A large image on an early page is used as the cover. Artwork that repeats on most pages is treated as a logo or watermark and left out."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "How do I get the EPUB onto a Kindle or Kobo?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "On a Kobo, plug it into a computer and copy the file into the device's folder; it appears in your library. On a Kindle, email the file to your Send to Kindle address, or use the Send to Kindle page in a browser \u2014 modern Kindles accept EPUB directly. Calibre handles both if you prefer a desktop tool."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "What won't it handle?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Multi-column pages interleave into nonsense, because lines are grouped by their vertical position. Tables, footnotes and hand-set layout lose their structure. Very large books are bounded by your device's memory. It is built for books and documents that are mostly prose."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Is it free? Is there a catch?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "It's free, there's no account, no limit on file size beyond your own memory, and no watermark. There is nothing to monetise because nothing reaches a server. The source is on GitHub."
+   }
+  }
+ ]
+}
+</script>
 </head>
 <body>
 
 <!-- ================= landing ================= -->
 <div class="landing" id="landing">
   <div class="inner">
-    <button class="theme" id="themeBtn2" aria-label="Switch between light and dark">
-      <svg viewBox="0 0 20 20" aria-hidden="true">
-        <circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.7"/>
-        <path d="M10 2a8 8 0 0 1 0 16Z" fill="currentColor"/>
-      </svg>
-    </button>
-
-    <div class="mark"><b>Reflow</b><span>PDF → EPUB</span></div>
+    <div class="mark"><svg class="glyph" viewBox="0 0 64 64" fill="none" stroke="currentColor"
+         stroke-linecap="round" stroke-linejoin="round" stroke-width="3.4" aria-hidden="true">
+      <path d="M27 12c-1.4-.6-3 .2-3.2 1.8l-4.4 33c-.2 1.6.8 3 2.4 3.2l31 4.2c1.6.2 3-.8 3.2-2.4l3.6-27c.2-1.6-.8-3-2.4-3.2Z"/>
+      <path d="M57.2 21.6 45.6 14l7.4 15.2Z" stroke-width="3"/>
+      <g stroke-width="2.6"><path d="M28 24.5 46 27"/><path d="M26.6 33.5 44.6 36"/><path d="M25.4 42.5 37 44"/></g>
+      <g stroke-width="3"><path d="M13.5 20.5 7 14"/><path d="M11.5 33 4 31"/><path d="M17.5 11 15.5 3.5"/></g>
+        </svg><b>Reflow</b></div>
 
     <div class="hero">
       <svg class="heroart ink draw" viewBox="0 0 400 132" fill="none" stroke="currentColor"
@@ -424,7 +548,54 @@
       </ol>
     </section>
 
-    <p class="lfoot">Text and images only — hand-set layout, tables and multi-column pages won't survive intact. A scanned PDF has no text layer at all and needs OCR before any converter can read it.</p>
+
+    <section class="faq">
+      <h2>Questions</h2>
+
+      <details>
+        <summary>Why does my PDF look broken on an e-reader?</summary>
+        <p>A PDF fixes every word to a coordinate on a fixed-size page. An e-reader needs to reflow text to fit its screen and your chosen font size, and it can't, so you end up pinching and scrolling across a page built for A4. Converters that keep those coordinates produce EPUBs where lines sit on top of each other. Reflow uses the coordinates only to work out reading order, then discards them and rebuilds real paragraphs.</p>
+      </details>
+
+      <details>
+        <summary>Is my file uploaded anywhere?</summary>
+        <p>No. There is no server to upload to. The PDF is read by your own browser, and the EPUB is assembled on your device. You can disconnect from the internet after the page loads and it still works.</p>
+      </details>
+
+      <details>
+        <summary>My PDF is a scan and nothing happens. Why?</summary>
+        <p>A scanned PDF contains photographs of pages, not text, so there is nothing to extract. Reflow tells you when it finds no text layer. You need OCR software to read the pages first; free options include running the file through OCRmyPDF, or opening it in Google Drive, which runs OCR when it converts to a Google Doc.</p>
+      </details>
+
+      <details>
+        <summary>The chapters came out wrong. Can I fix them?</summary>
+        <p>Yes, and you don't have to re-convert. Reflow takes chapter names from the PDF's bookmarks, or from the book's own contents page if it has one. When neither exists it guesses from the typesetting, and typesetting varies enormously. In the contents panel you can rename, reorder, merge and remove entries, and clicking any line in the preview promotes it to a chapter heading.</p>
+      </details>
+
+      <details>
+        <summary>Do images survive?</summary>
+        <p>Yes. Figures are extracted and placed back at the point in the text where they appeared on the page, rather than collected at the end or dropped. A large image on an early page is used as the cover. Artwork that repeats on most pages is treated as a logo or watermark and left out.</p>
+      </details>
+
+      <details>
+        <summary>How do I get the EPUB onto a Kindle or Kobo?</summary>
+        <p>On a Kobo, plug it into a computer and copy the file into the device's folder; it appears in your library. On a Kindle, email the file to your Send to Kindle address, or use the Send to Kindle page in a browser — modern Kindles accept EPUB directly. Calibre handles both if you prefer a desktop tool.</p>
+      </details>
+
+      <details>
+        <summary>What won't it handle?</summary>
+        <p>Multi-column pages interleave into nonsense, because lines are grouped by their vertical position. Tables, footnotes and hand-set layout lose their structure. Very large books are bounded by your device's memory. It is built for books and documents that are mostly prose.</p>
+      </details>
+
+      <details>
+        <summary>Is it free? Is there a catch?</summary>
+        <p>It's free, there's no account, no limit on file size beyond your own memory, and no watermark. There is nothing to monetise because nothing reaches a server. The source is on GitHub.</p>
+      </details>
+    </section>
+
+    <p class="lfoot">Text and images only — hand-set layout, tables and multi-column pages won't survive intact. A scanned PDF has no text layer at all and needs OCR before any converter can read it.
+      <nav><a href="privacy.html">Privacy</a><a href="https://github.com/Lydiaofficial/Reflow" rel="noopener">Source on GitHub</a></nav>
+    </p>
   </div>
 </div>
 
@@ -432,7 +603,17 @@
 <div class="work" id="work" hidden>
   <div>
     <div class="topbar">
-      <button class="back" id="back" aria-label="Start over">‹</button>
+      <button class="brand" id="brandBtn" aria-label="Back to the Reflow home page">
+        <svg class="glyph" viewBox="0 0 64 64" fill="none" stroke="currentColor"
+             stroke-linecap="round" stroke-linejoin="round" stroke-width="3.4" aria-hidden="true">
+          <path d="M27 12c-1.4-.6-3 .2-3.2 1.8l-4.4 33c-.2 1.6.8 3 2.4 3.2l31 4.2c1.6.2 3-.8 3.2-2.4l3.6-27c.2-1.6-.8-3-2.4-3.2Z"/>
+          <path d="M57.2 21.6 45.6 14l7.4 15.2Z" stroke-width="3"/>
+          <g stroke-width="2.6"><path d="M28 24.5 46 27"/><path d="M26.6 33.5 44.6 36"/><path d="M25.4 42.5 37 44"/></g>
+          <g stroke-width="3"><path d="M13.5 20.5 7 14"/><path d="M11.5 33 4 31"/><path d="M17.5 11 15.5 3.5"/></g>
+        </svg>
+        <b>Reflow</b>
+      </button>
+      <div class="bar-right">
       <button class="toc-toggle" id="tocToggle">Contents</button>
       <div class="who"><b id="wTitle">—</b><span id="wStatus">—</span></div>
       <div class="navsel" id="navsel" hidden>
@@ -447,6 +628,7 @@
         </svg>
       </button>
       <button class="dl" id="dl" disabled>Download</button>
+      </div>
     </div>
     <div class="prog"><i id="bar"></i></div>
   </div>
@@ -564,7 +746,14 @@
       if(c[k]>bestN){bestN=c[k]; best=+k;} }
     return best;
   }
-  const setBar = f => { $("bar").style.width = Math.max(0,Math.min(1,f))*100+"%"; };
+  let barTimer;
+  const setBar = f => {
+    const el = $("bar");
+    clearTimeout(barTimer);
+    el.classList.remove("spent");
+    el.style.width = Math.max(0,Math.min(1,f))*100+"%";
+    if(f >= 1) barTimer = setTimeout(()=>el.classList.add("spent"), 500);
+  };
   const setStatus = (m,bad) => { const e=$("wStatus"); e.textContent=m;
     e.style.color = bad ? "var(--amber)" : "var(--dim)"; };
   const idle = () => new Promise(r=>setTimeout(r,0));
@@ -1353,7 +1542,7 @@ ${chs.map((c,i)=>
   document.addEventListener("keydown",e=>{
     if(e.key==="Escape" && !$("scrim").hidden) closeDone();
   });
-  $("back").addEventListener("click",()=>{
+  $("brandBtn").addEventListener("click",()=>{
     if(busy) return;
     $("work").hidden=true; $("landing").hidden=false;
     fileInput.value="";
@@ -1419,8 +1608,7 @@ ${chs.map((c,i)=>
     if(inp && renaming>=0){ renaming=-1; renderContents(); }
   }, true);
 
-  ["themeBtn","themeBtn2"].forEach(id=>
-    $(id).addEventListener("click",()=>document.body.classList.toggle("light")));
+  $("themeBtn").addEventListener("click",()=>document.body.classList.toggle("light"));
 
   $("prevCh").addEventListener("click",()=>goChapter(chIdx-1));
   $("nextCh").addEventListener("click",()=>goChapter(chIdx+1));
