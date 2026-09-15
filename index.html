@@ -59,6 +59,8 @@
 <script src="vendor/jszip.min.js"></script>
 <script src="vendor/pdf.min.js"></script>
 <script src="vendor/jszip.min.js"></script>
+<script src="vendor/pdf.min.js"></script>
+<script src="vendor/jszip.min.js"></script>
 <style>
   :root{
     --void:#000;
@@ -342,78 +344,6 @@
   }
   @media (prefers-reduced-motion:reduce){*{transition:none !important}}
 </style>
-<script type="application/ld+json">
-{
- "@context": "https://schema.org",
- "@type": "FAQPage",
- "mainEntity": [
-  {
-   "@type": "Question",
-   "name": "Why does my PDF look broken on an e-reader?",
-   "acceptedAnswer": {
-    "@type": "Answer",
-    "text": "A PDF fixes every word to a coordinate on a fixed-size page. An e-reader needs to reflow text to fit its screen and your chosen font size, and it can't, so you end up pinching and scrolling across a page built for A4. Converters that keep those coordinates produce EPUBs where lines sit on top of each other. Reflow uses the coordinates only to work out reading order, then discards them and rebuilds real paragraphs."
-   }
-  },
-  {
-   "@type": "Question",
-   "name": "Is my file uploaded anywhere?",
-   "acceptedAnswer": {
-    "@type": "Answer",
-    "text": "No. There is no server to upload to. The PDF is read by your own browser, and the EPUB is assembled on your device. You can disconnect from the internet after the page loads and it still works."
-   }
-  },
-  {
-   "@type": "Question",
-   "name": "My PDF is a scan and nothing happens. Why?",
-   "acceptedAnswer": {
-    "@type": "Answer",
-    "text": "A scanned PDF contains photographs of pages, not text, so there is nothing to extract. Reflow tells you when it finds no text layer. You need OCR software to read the pages first; free options include running the file through OCRmyPDF, or opening it in Google Drive, which runs OCR when it converts to a Google Doc."
-   }
-  },
-  {
-   "@type": "Question",
-   "name": "The chapters came out wrong. Can I fix them?",
-   "acceptedAnswer": {
-    "@type": "Answer",
-    "text": "Yes, and you don't have to re-convert. Reflow takes chapter names from the PDF's bookmarks, or from the book's own contents page if it has one. When neither exists it guesses from the typesetting, and typesetting varies enormously. In the contents panel you can rename, reorder, merge and remove entries, and clicking any line in the preview promotes it to a chapter heading."
-   }
-  },
-  {
-   "@type": "Question",
-   "name": "Do images survive?",
-   "acceptedAnswer": {
-    "@type": "Answer",
-    "text": "Yes. Figures are extracted and placed back at the point in the text where they appeared on the page, rather than collected at the end or dropped. A large image on an early page is used as the cover. Artwork that repeats on most pages is treated as a logo or watermark and left out."
-   }
-  },
-  {
-   "@type": "Question",
-   "name": "How do I get the EPUB onto a Kindle or Kobo?",
-   "acceptedAnswer": {
-    "@type": "Answer",
-    "text": "On a Kobo, plug it into a computer and copy the file into the device's folder; it appears in your library. On a Kindle, email the file to your Send to Kindle address, or use the Send to Kindle page in a browser \u2014 modern Kindles accept EPUB directly. Calibre handles both if you prefer a desktop tool."
-   }
-  },
-  {
-   "@type": "Question",
-   "name": "What won't it handle?",
-   "acceptedAnswer": {
-    "@type": "Answer",
-    "text": "Multi-column pages interleave into nonsense, because lines are grouped by their vertical position. Tables, footnotes and hand-set layout lose their structure. Very large books are bounded by your device's memory. It is built for books and documents that are mostly prose."
-   }
-  },
-  {
-   "@type": "Question",
-   "name": "Is it free? Is there a catch?",
-   "acceptedAnswer": {
-    "@type": "Answer",
-    "text": "It's free, there's no account, no limit on file size beyond your own memory, and no watermark. There is nothing to monetise because nothing reaches a server. The source is on GitHub."
-   }
-  }
- ]
-}
-</script>
 </head>
 <body>
 
@@ -890,10 +820,12 @@
   async function parseDoc(onProgress,wantImages){
     const pdf=await pdfjsLib.getDocument({data:pdfBytes.slice(0)}).promise;
     const pages=[], imageStore=[], seen=new Map();
+    let rawItemCount=0;
     for(let p=1;p<=pdf.numPages;p++){
       const page=await pdf.getPage(p);
       const vp=page.getViewport({scale:1});
       const tc=await page.getTextContent();
+      rawItemCount += tc.items.length;
       const items=[];
       for(const it of tc.items){
         if(!it.str||!it.str.trim()) continue;
@@ -912,7 +844,7 @@
     for(const pg of pages) pg.imgs=pg.imgs.filter(i=>i.rec.uses<tooCommon);
     let outline=[]; try{ outline=await readOutline(pdf); }catch(e){}
     let meta={}; try{ meta=(await pdf.getMetadata()).info||{}; }catch(e){}
-    return {pages, imageStore, outline, meta, numPages:pdf.numPages};
+    return {pages, imageStore, outline, meta, numPages:pdf.numPages, rawItemCount};
   }
 
   async function readOutline(pdf){
@@ -1451,21 +1383,48 @@ ${chs.map((c,i)=>
     await refresh();
   }
 
-  async function convert(){
+  async function convert(force){
     if(busy||!pdfBytes) return;
     busy=true; dlBtn.disabled=true;
-    sheet.className="sheet "+paraStyle;
-    sheet.innerHTML=skeleton("Reading the document…");
-    setStatus("Reading…"); setBar(0.02);
+    setBar(0.02);
     try{
-      parsed=await parseDoc((f,p,n)=>{ setBar(f*0.78); setStatus(`Reading page ${p} of ${n}…`); },
-                            $("optImages").checked);
-      const chars=parsed.pages.reduce((n,p)=>n+p.lines.reduce((m,l)=>m+l.text.length,0),0);
-      if(chars<40*parsed.numPages){
-        setStatus("No text layer — this PDF is page images and needs OCR first.",true);
-        sheet.innerHTML='<p class="waiting">This PDF has no text in it, only pictures of pages. OCR software has to read it before any converter can rebuild it.</p>';
-        setBar(0); parsed=null; busy=false; return;
+      if(!force || !parsed){
+        sheet.className="sheet "+paraStyle;
+        sheet.innerHTML=skeleton("Reading the document…");
+        setStatus("Reading…");
+        parsed=await parseDoc((f,p,n)=>{ setBar(f*0.78); setStatus(`Reading page ${p} of ${n}…`); },
+                              $("optImages").checked);
+      } else {
+        setStatus("Converting anyway…");
       }
+
+      if(!force){
+        const chars=parsed.pages.reduce((n,p)=>n+p.lines.reduce((m,l)=>m+l.text.length,0),0);
+        const pagesWithText=parsed.pages.filter(p=>p.lines.length>0).length;
+        const textyRatio=parsed.numPages ? pagesWithText/parsed.numPages : 1;
+        // Both conditions have to hold: low text density AND most pages
+        // contributing none at all. A document with a sparse title page or a
+        // couple of image-only plates shouldn't trip this on its own.
+        const sparse = chars < 40*parsed.numPages && textyRatio < 0.3;
+        if(sparse){
+          // Text-drawing operations exist (rawItemCount) but produced almost no
+          // usable characters — that's a font with no Unicode mapping, not a
+          // scanned image, and deserves a different, truer explanation.
+          const fontIssue = parsed.rawItemCount > parsed.numPages*5;
+          const msg = fontIssue
+            ? "This file draws text on the page, but the font it uses has no readable character data behind it \u2014 a known quirk of some exported or subsetted fonts. A converter can\u2019t recover the words from that, even though the page looks like ordinary text."
+            : "This PDF has almost no extractable text \u2014 it reads like scanned page images rather than real text, which normally means it needs OCR before any converter can read it.";
+          setStatus(fontIssue ? "This font has no readable character data." : "No text layer detected.", true);
+          sheet.className = "sheet";
+          sheet.innerHTML = '<div class="skel"><p class="lead">'+esc(msg)+
+            ' If you can select and copy the text in an ordinary PDF viewer, this detection is probably wrong for your file \u2014 it\u2019s a rough guess, not a certainty.</p>'+
+            '<button type="button" id="forceConvert" class="dl" style="width:auto">Convert anyway</button></div>';
+          $("forceConvert").addEventListener("click", ()=>{ busy=false; convert(true); });
+          setBar(0); busy=false;
+          return;
+        }
+      }
+
       if(!titleIn.value && parsed.meta.Title) titleIn.value=parsed.meta.Title;
       if(!authorIn.value && parsed.meta.Author) authorIn.value=parsed.meta.Author;
       $("wTitle").textContent=titleIn.value.trim()||pdfName;
