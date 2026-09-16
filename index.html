@@ -61,6 +61,9 @@
 <script src="vendor/jszip.min.js"></script>
 <script src="vendor/pdf.min.js"></script>
 <script src="vendor/jszip.min.js"></script>
+<script src="vendor/pdf.min.js"></script>
+<script src="vendor/jszip.min.js"></script>
+<script src="vendor/tesseract.min.js"></script>
 <style>
   :root{
     --void:#000;
@@ -1380,49 +1383,126 @@ ${chs.map((c,i)=>
     lastInfo = r.toc
       ? `Contents page found on page ${r.toc.pageNums.join(" & ")} — ${r.tocMatched} of ${r.toc.entries.length} titles matched in the text, and that page was left out of the book.`
       : "No contents page or bookmarks found, so chapters were guessed from the typesetting.";
+    if(parsed.wasOcr){
+      lastInfo = "This PDF had no text layer, so the words were read with OCR rather than extracted directly \u2014 check names, numbers and unusual formatting, since OCR isn't perfect. " + lastInfo;
+    }
     await refresh();
   }
 
-  async function convert(force){
+  /* ---------- OCR fallback, for PDFs with no usable text layer ---------- */
+  // Tesseract is loaded lazily — a normal, text-based PDF never touches this
+  // code path or downloads anything extra.
+  let ocrWorker = null;
+  async function getOcrWorker(onLog){
+    if(ocrWorker) return ocrWorker;
+    ocrWorker = await Tesseract.createWorker('eng', 1, {
+      logger: onLog,
+      workerPath: 'vendor/worker.min.js',
+      corePath: 'vendor/tesseract-core-simd-lstm.wasm.js',
+      langPath: 'vendor',
+      gzip: true
+    });
+    return ocrWorker;
+  }
+
+  // Renders one page to a canvas and recognizes it, returning lines in the
+  // same shape groupLines() produces, so the existing paragraph and chapter
+  // logic runs unchanged on OCR'd text.
+  async function ocrPage(pdf, pageNum, worker, scale){
+    const page = await pdf.getPage(pageNum);
+    const vp = page.getViewport({scale});
+    const canvas = document.createElement("canvas");
+    canvas.width = vp.width; canvas.height = vp.height;
+    await page.render({canvasContext: canvas.getContext("2d"), viewport: vp}).promise;
+
+    const { data } = await worker.recognize(canvas);
+    const srcLines = (data && data.lines) || [];
+    const lines = [];
+    for(const ln of srcLines){
+      const text = (ln.text||"").replace(/\s+/g," ").trim();
+      if(!text || !ln.bbox) continue;
+      const heightPx = Math.max(1, ln.bbox.y1 - ln.bbox.y0);
+      lines.push({
+        kind:"line", text,
+        x: ln.bbox.x0/scale,
+        y: (vp.height - ln.bbox.y1)/scale,           // flip: canvas y-down to PDF-space y-up
+        right: ln.bbox.x1/scale,
+        size: heightPx/scale,
+        bold:false, caps: text===text.toUpperCase() && /[A-Z]/.test(text),
+        tabbed:false, gapAbove:0
+      });
+    }
+    return { lines, height: vp.height/scale, canvas: pageNum===1 ? canvas : null };
+  }
+
+  // Runs every page through OCR, in place of parseDoc, and reports live
+  // pace rather than a guess — this genuinely is slow, especially on a
+  // phone, and pretending otherwise would be another false promise.
+  async function ocrDoc(onProgress){
+    const pdf = await pdfjsLib.getDocument({data: pdfBytes.slice(0)}).promise;
+    const worker = await getOcrWorker();
+    const scale = 2.0; // ~144dpi — a balance of accuracy against time and memory on mobile
+    const pages = [];
+    let coverCanvas = null;
+    const started = Date.now();
+    for(let p=1; p<=pdf.numPages; p++){
+      const { lines, height, canvas } = await ocrPage(pdf, p, worker, scale);
+      if(canvas) coverCanvas = canvas;
+      pages.push({ num:p, height, lines, imgs:[] }); // no embedded page-scan images in the output —
+                                                       // the recognized text is the book now
+      const elapsed = (Date.now()-started)/1000;
+      const perPage = elapsed/p;
+      const remain = Math.max(0, Math.round(perPage*(pdf.numPages-p)));
+      onProgress(p, pdf.numPages, remain);
+      await idle();
+    }
+    let meta={}; try{ meta=(await pdf.getMetadata()).info||{}; }catch(e){}
+    return { pages, imageStore:[], outline:[], meta, numPages: pdf.numPages,
+              rawItemCount: 0, wasOcr:true, coverCanvas };
+  }
+
+
+  async function canvasToCover(canvas){
+    const blob = await new Promise(res=>canvas.toBlob(res,"image/jpeg",0.82));
+    if(!blob) return null;
+    return { id:"cover", ext:"jpg", mime:"image/jpeg", blob, url:URL.createObjectURL(blob),
+             w:canvas.width, h:canvas.height, uses:1 };
+  }
+
+  async function convert(){
     if(busy||!pdfBytes) return;
     busy=true; dlBtn.disabled=true;
     setBar(0.02);
     try{
-      if(!force || !parsed){
-        sheet.className="sheet "+paraStyle;
-        sheet.innerHTML=skeleton("Reading the document…");
-        setStatus("Reading…");
-        parsed=await parseDoc((f,p,n)=>{ setBar(f*0.78); setStatus(`Reading page ${p} of ${n}…`); },
-                              $("optImages").checked);
-      } else {
-        setStatus("Converting anyway…");
-      }
+      sheet.className="sheet "+paraStyle;
+      sheet.innerHTML=skeleton("Reading the document…");
+      setStatus("Reading…");
+      parsed=await parseDoc((f,p,n)=>{ setBar(f*0.78); setStatus(`Reading page ${p} of ${n}…`); },
+                            $("optImages").checked);
 
-      if(!force){
-        const chars=parsed.pages.reduce((n,p)=>n+p.lines.reduce((m,l)=>m+l.text.length,0),0);
-        const pagesWithText=parsed.pages.filter(p=>p.lines.length>0).length;
-        const textyRatio=parsed.numPages ? pagesWithText/parsed.numPages : 1;
-        // Both conditions have to hold: low text density AND most pages
-        // contributing none at all. A document with a sparse title page or a
-        // couple of image-only plates shouldn't trip this on its own.
-        const sparse = chars < 40*parsed.numPages && textyRatio < 0.3;
-        if(sparse){
-          // Text-drawing operations exist (rawItemCount) but produced almost no
-          // usable characters — that's a font with no Unicode mapping, not a
-          // scanned image, and deserves a different, truer explanation.
-          const fontIssue = parsed.rawItemCount > parsed.numPages*5;
-          const msg = fontIssue
-            ? "This file draws text on the page, but the font it uses has no readable character data behind it \u2014 a known quirk of some exported or subsetted fonts. A converter can\u2019t recover the words from that, even though the page looks like ordinary text."
-            : "This PDF has almost no extractable text \u2014 it reads like scanned page images rather than real text, which normally means it needs OCR before any converter can read it.";
-          setStatus(fontIssue ? "This font has no readable character data." : "No text layer detected.", true);
-          sheet.className = "sheet";
-          sheet.innerHTML = '<div class="skel"><p class="lead">'+esc(msg)+
-            ' If you can select and copy the text in an ordinary PDF viewer, this detection is probably wrong for your file \u2014 it\u2019s a rough guess, not a certainty.</p>'+
-            '<button type="button" id="forceConvert" class="dl" style="width:auto">Convert anyway</button></div>';
-          $("forceConvert").addEventListener("click", ()=>{ busy=false; convert(true); });
-          setBar(0); busy=false;
-          return;
-        }
+      const chars=parsed.pages.reduce((n,p)=>n+p.lines.reduce((m,l)=>m+l.text.length,0),0);
+      const pagesWithText=parsed.pages.filter(p=>p.lines.length>0).length;
+      const textyRatio=parsed.numPages ? pagesWithText/parsed.numPages : 1;
+      // Both conditions have to hold: low text density AND most pages
+      // contributing none at all. A document with a sparse title page or a
+      // couple of image-only plates shouldn't trip this on its own.
+      const sparse = chars < 40*parsed.numPages && textyRatio < 0.3;
+
+      if(sparse){
+        // No usable text layer — genuinely a scan, or a font with no Unicode
+        // mapping (OCR fixes that too, since it reads pixels, not font data).
+        // Read it with OCR instead of stopping here.
+        setStatus("No text layer — reading this as a scan…");
+        sheet.innerHTML = skeleton("Recognizing text — page 1 of "+parsed.numPages+"…");
+        const ocred = await ocrDoc((p,n,remainSec)=>{
+          setBar(0.05 + 0.7*(p/n));
+          const mins = Math.floor(remainSec/60), secs = remainSec%60;
+          const eta = p<n ? ` \u2014 about ${mins?mins+"m ":""}${secs}s left` : "";
+          setStatus(`Recognizing text \u2014 page ${p} of ${n}${eta}`);
+          sheet.innerHTML = skeleton(`Recognizing text \u2014 page ${p} of ${n}${eta}`);
+        });
+        if(ocred.coverCanvas) cover = await canvasToCover(ocred.coverCanvas);
+        parsed = ocred;
       }
 
       if(!titleIn.value && parsed.meta.Title) titleIn.value=parsed.meta.Title;
